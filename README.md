@@ -1,2 +1,2 @@
-# reciclou
+# Recicla+
 Aplicativo de Reciclagem
