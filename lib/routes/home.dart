@@ -1,17 +1,58 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/auth_service.dart';
 
-class HomeScreen extends StatelessWidget {
-  final String nomeUsuario;
-  final int pontos;
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({Key? key}) : super(key: key);
 
-  const HomeScreen({
-    super.key,
-    required this.nomeUsuario,
-    required this.pontos,
-  });
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final _authService = AuthService();
+  Map<String, dynamic>? _userData;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUser();
+  }
+
+  Future<void> _loadUser() async {
+    final user = _authService.currentUser;
+    if (user != null) {
+      final data = await _authService.getUserData(user.uid);
+      setState(() {
+        _userData = data;
+      });
+    }
+  }
+
+  void _logout(BuildContext context) async {
+    await FirebaseAuth.instance.signOut();
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
+  //void _goToUserInfo(BuildContext context) {
+  //  if (user != null) {
+  //Navigator.pushNamed(
+  //  context,
+  // '/userInfo',
+  //   arguments: {'email': user!.email, 'uid': user!.uid},
+  //);
+  //}
+  //}
 
   @override
   Widget build(BuildContext context) {
+    if (_userData == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    final name = _userData!['name'] ?? 'Usuário';
+    final points = _userData!['points'] ?? 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F5),
       body: SafeArea(
@@ -37,7 +78,7 @@ class HomeScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Olá, $nomeUsuario',
+                              'Olá, $name',
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -51,7 +92,7 @@ class HomeScreen extends StatelessWidget {
                     Row(
                       children: [
                         Text(
-                          '$pontos',
+                          '$points',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -62,6 +103,12 @@ class HomeScreen extends StatelessWidget {
                         const Text(
                           'pontos',
                           style: TextStyle(color: Colors.grey),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            _logout(context);
+                          },
+                          child: const Text("Sair"),
                         ),
                       ],
                     ),
