@@ -6,7 +6,10 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Login com e-mail e senha
-  Future<UserCredential?> signInWithEmailAndPassword(String email, String password) async {
+  Future<UserCredential?> signInWithEmailAndPassword(
+    String email,
+    String password,
+  ) async {
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email,
@@ -17,6 +20,25 @@ class AuthService {
     }
   }
 
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final result = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    final userDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(result.user!.uid)
+        .get();
+
+    return {
+      'uid': result.user!.uid,
+      'email': result.user!.email,
+      'name': userDoc['name'],
+      'pontos': 0,
+    };
+  }
+
   // Registro com e-mail e senha
   Future<UserCredential?> registerWithEmailAndPassword(
     String name,
@@ -24,30 +46,14 @@ class AuthService {
     String password,
   ) async {
     try {
-      print('Verificando se o email já existe: $email');
-      
-      // Verificar se o usuário já existe no Firestore
-      var usersWithEmail = await _firestore
-          .collection('users')
-          .where('email', isEqualTo: email)
-          .get();
-
-      if (usersWithEmail.docs.isNotEmpty) {
-        print('Email já cadastrado no Firestore');
-        throw FirebaseAuthException(
-          code: 'email-already-in-use',
-          message: 'Este e-mail já está cadastrado no sistema.',
-        );
-      }
-
       print('Iniciando registro do usuário: $email');
-      
+
       // Criar usuário no Firebase Auth
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      
+
       print('Usuário criado no Auth com ID: ${result.user?.uid}');
 
       // Adicionar informações adicionais no Firestore
@@ -91,10 +97,10 @@ class AuthService {
 
       // Deletar dados do Firestore
       await _firestore.collection('users').doc(result.user!.uid).delete();
-      
+
       // Deletar usuário do Auth
       await result.user!.delete();
-      
+
       print('Conta deletada com sucesso');
     } catch (e) {
       print('Erro ao deletar conta: $e');

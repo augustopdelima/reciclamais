@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'register_screen.dart';
 import 'services/auth_service.dart';
+import 'home.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -18,21 +19,33 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        await _authService.signInWithEmailAndPassword(
+        final result = await _authService.login(
           _emailController.text,
           _passwordController.text,
         );
-        // Navegue para a próxima tela após o login
-        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomeScreen()));
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+
+        // Pegando os valores do login
+        final nome = result['name'] as String;
+        final pontos = result['pontos'] as int;
+
+        // Navega para a HomeScreen com os valores
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => HomeScreen(nomeUsuario: nome, pontos: pontos),
+          ),
         );
+      } catch (e) {
+        print(e);
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.toString())));
       } finally {
         setState(() => _isLoading = false);
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,10 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 20.0),
-                  child: Image.asset(
-                    'assets/logo.png',
-                    height: 400,
-                  ),
+                  child: Image.asset('assets/logo.png', height: 400),
                 ),
                 // Card de login
                 Container(
@@ -107,118 +117,134 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                    SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Esqueceu sua senha?',
-                        style: TextStyle(color: Colors.grey[700]),
-                      ),
-                    ),
-                    SizedBox(height: 16),
-                    // Botão Entrar
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF388E3C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                      SizedBox(height: 8),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Esqueceu sua senha?',
+                          style: TextStyle(color: Colors.grey[700]),
                         ),
-                        onPressed: _isLoading ? null : _login,
-                        child: _isLoading
-                            ? SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : Text('Entrar'),
                       ),
-                    ),
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(child: Divider()),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('ou'),
-                        ),
-                        Expanded(child: Divider()),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    // Botão Google
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF388E3C),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                        ),
-                        onPressed: () {},
-                        child: Text('G+'),
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    // Botão para limpar cadastro (temporário)
-                    TextButton(
-                      onPressed: () async {
-                        try {
-                          await _authService.deleteAccount(
-                            _emailController.text,
-                            _passwordController.text,
-                          );
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Conta deletada com sucesso')),
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text(e.toString())),
-                          );
-                        }
-                      },
-                      child: Text('Limpar cadastro (DEBUG)'),
-                    ),
-                    SizedBox(height: 8),
-                    // Cadastro
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => RegisterScreen(),
-                          ),
-                        );
-                      },
-                      child: Text.rich(
-                        TextSpan(
-                          text: 'É novo por aqui? ',
-                          children: [
-                            TextSpan(
-                              text: 'Cadastre-se',
-                              style: TextStyle(
-                                color: Color(0xFF388E3C),
-                                fontWeight: FontWeight.bold,
-                              ),
+                      SizedBox(height: 16),
+                      // Botão Entrar
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF388E3C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          ],
+                          ),
+                          onPressed: _isLoading ? null : _login,
+                          child: _isLoading
+                              ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(
+                                  'Entrar',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(child: Divider()),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8.0,
+                            ),
+                            child: Text('ou'),
+                          ),
+                          Expanded(child: Divider()),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      // Botão Google
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF388E3C),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          onPressed: () {},
+                          child: Text(
+                            'G+',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      // Botão para limpar cadastro (temporário)
+                      TextButton(
+                        onPressed: () async {
+                          try {
+                            await _authService.deleteAccount(
+                              _emailController.text,
+                              _passwordController.text,
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Conta deletada com sucesso'),
+                              ),
+                            );
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(e.toString())),
+                            );
+                          }
+                        },
+                        child: Text('Limpar cadastro (DEBUG)'),
+                      ),
+                      SizedBox(height: 8),
+                      // Cadastro
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RegisterScreen(),
+                            ),
+                          );
+                        },
+                        child: Text.rich(
+                          TextSpan(
+                            text: 'É novo por aqui? ',
+                            children: [
+                              TextSpan(
+                                text: 'Cadastre-se',
+                                style: TextStyle(
+                                  color: Color(0xFF388E3C),
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
