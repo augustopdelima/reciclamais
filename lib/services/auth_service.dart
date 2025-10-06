@@ -5,88 +5,67 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Login com e-mail e senha
-  Future<UserCredential?> signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+  // Get current user
+  User? get currentUser => _auth.currentUser;
+
+  // Stream for auth changes
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  // Register with email & password
+  Future<User?> register(String email, String password, String nome) async {
     try {
-      return await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
-    }
-  }
-
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    final result = await FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
-
-    final userDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(result.user!.uid)
-        .get();
-
-    return {
-      'uid': result.user!.uid,
-      'email': result.user!.email,
-      'name': userDoc['name'],
-      'pontos': 0,
-    };
-  }
-
-  // Registro com e-mail e senha
-  Future<UserCredential?> registerWithEmailAndPassword(
-    String name,
-    String email,
-    String password,
-  ) async {
-    try {
-      print('Iniciando registro do usuário: $email');
-
-      // Criar usuário no Firebase Auth
+      // 1. Criar usuário no Firebase Auth
       UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: email.trim(),
+        password: password.trim(),
       );
 
-      print('Usuário criado no Auth com ID: ${result.user?.uid}');
+      User? user = result.user;
 
-      // Adicionar informações adicionais no Firestore
-      try {
-        await _firestore.collection('users').doc(result.user!.uid).set({
-          'name': name,
-          'email': email,
-          'createdAt': FieldValue.serverTimestamp(),
+      if (user != null) {
+        // 2. Criar documento no Firestore com dados adicionais
+        await _firestore.collection('users').doc(user.uid).set({
+          'name': nome,
+          'email': email.trim(),
+          'points': 0, // usuário novo começa com 0 pontos
+          'role': 'client', // padrão, não admin
+          'createdAt':
+              FieldValue.serverTimestamp(), // opcional, data de criação
         });
-        print('Dados do usuário salvos no Firestore');
-      } catch (firestoreError) {
-        print('Erro ao salvar no Firestore: $firestoreError');
-        // Deletar o usuário do Auth se falhar ao salvar no Firestore
-        await result.user?.delete();
-        throw 'Erro ao salvar dados do usuário. Por favor, tente novamente.';
       }
 
-      return result;
+      return user;
     } on FirebaseAuthException catch (e) {
-      print('Erro no Firebase Auth: ${e.code} - ${e.message}');
-      throw _handleAuthException(e);
-    } catch (e) {
-      print('Erro não esperado: $e');
-      throw 'Ocorreu um erro inesperado. Por favor, tente novamente.';
+      throw Exception(e.message);
     }
   }
 
-  // Logout
-  Future<void> signOut() async {
-    await _auth.signOut();
+  Future<Map<String, dynamic>?> getUserData(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    } catch (e) {
+      print('Erro ao buscar dados do usuário: $e');
+      return null;
+    }
   }
 
-  // Limpar cadastro existente
+  // Login with email & password
+  Future<User?> login(String email, String password) async {
+    try {
+      UserCredential result = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password.trim(),
+      );
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
   Future<void> deleteAccount(String email, String password) async {
     try {
       // Fazer login primeiro
@@ -108,21 +87,8 @@ class AuthService {
     }
   }
 
-  // Tratamento de erros
-  String _handleAuthException(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'weak-password':
-        return 'A senha é muito fraca.';
-      case 'email-already-in-use':
-        return 'Este e-mail já está em uso.';
-      case 'user-not-found':
-        return 'Usuário não encontrado.';
-      case 'wrong-password':
-        return 'Senha incorreta.';
-      case 'invalid-email':
-        return 'E-mail inválido.';
-      default:
-        return 'Ocorreu um erro: ${e.message}';
-    }
+  // Logout
+  Future<void> logout() async {
+    await _auth.signOut();
   }
 }

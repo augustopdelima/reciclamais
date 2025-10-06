@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'register_screen.dart';
-import 'services/auth_service.dart';
-import 'home.dart';
+import 'package:reciclamais/components/logo.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -9,34 +8,19 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _isLoading = false;
 
-  Future<void> _login() async {
+  void _login() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
-        final result = await _authService.login(
-          _emailController.text,
-          _passwordController.text,
-        );
-
-        // Pegando os valores do login
-        final nome = result['name'] as String;
-        final pontos = result['pontos'] as int;
-
-        // Navega para a HomeScreen com os valores
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(nomeUsuario: nome, pontos: pontos),
-          ),
-        );
+        await _authService.login(emailController.text, passwordController.text);
+        Navigator.pushReplacementNamed(context, '/home');
       } catch (e) {
-        print(e);
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(e.toString())));
@@ -46,7 +30,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFA0E586),
@@ -59,7 +42,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // Logo
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0, bottom: 20.0),
-                  child: Image.asset('assets/logo.png', height: 400),
+                  child: Logo(height: 400),
                 ),
                 // Card de login
                 Container(
@@ -73,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       // Campo E-mail
                       TextFormField(
-                        controller: _emailController,
+                        controller: emailController,
                         decoration: InputDecoration(
                           labelText: 'E-mail',
                           prefixIcon: Icon(Icons.mail_outline),
@@ -96,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 16),
                       // Campo Senha
                       TextFormField(
-                        controller: _passwordController,
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           labelText: 'Senha',
@@ -195,8 +178,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () async {
                           try {
                             await _authService.deleteAccount(
-                              _emailController.text,
-                              _passwordController.text,
+                              emailController.text,
+                              passwordController.text,
                             );
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -215,12 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Cadastro
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => RegisterScreen(),
-                            ),
-                          );
+                          Navigator.pushNamed(context, "/register");
                         },
                         child: Text.rich(
                           TextSpan(
