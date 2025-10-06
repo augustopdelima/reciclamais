@@ -17,7 +17,6 @@ Recicla+ é um aplicativo móvel desenvolvido em Flutter que visa conectar colet
 - Flutter SDK (versão mais recente)
 - Android Studio / VS Code
 - Firebase CLI
-- Node.js e npm
 - Dispositivo Android / Emulador
 
 ## 🔧 Instalação
