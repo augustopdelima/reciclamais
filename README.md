@@ -56,7 +56,6 @@ flutter run
 - Autenticação de usuários
 - Cadastro de materiais recicláveis
 - Localização de pontos de coleta
-- Chat em tempo real
 - Histórico de coletas
 - Notificações push
 - Mapas interativos
