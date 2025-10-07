@@ -41,8 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 // Logo
                 Padding(
-                  padding: const EdgeInsets.only(top: 40.0, bottom: 20.0),
-                  child: Logo(height: 400),
+                  padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
+                  child: const Logo(width: 200, height: 300),
                 ),
                 // Card de login
                 Container(
@@ -138,7 +138,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                         ),
                       ),
-                      SizedBox(height: 8),
                       Row(
                         children: [
                           Expanded(child: Divider()),
@@ -151,7 +150,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           Expanded(child: Divider()),
                         ],
                       ),
-                      SizedBox(height: 8),
                       // Botão Google
                       SizedBox(
                         width: double.infinity,
@@ -172,7 +170,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 8),
                       // Botão para limpar cadastro (temporário)
                       TextButton(
                         onPressed: () async {
@@ -194,7 +191,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                         child: Text('Limpar cadastro (DEBUG)'),
                       ),
-                      SizedBox(height: 8),
                       // Cadastro
                       GestureDetector(
                         onTap: () {

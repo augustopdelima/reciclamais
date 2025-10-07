@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../components/logo.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -67,7 +68,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 // Logo
                 Padding(
                   padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-                  child: Image.asset('assets/logo.png', height: 300),
+                  child: const Logo(width: 200, height: 230),
                 ),
                 // Card de cadastro
                 Container(
@@ -87,7 +88,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           color: Color(0xFF388E3C),
                         ),
                       ),
-                      SizedBox(height: 24),
+                      SizedBox(height: 14),
                       // Campo Nome
                       TextFormField(
                         controller: _nameController,
