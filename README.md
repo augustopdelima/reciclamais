@@ -8,8 +8,6 @@ Recicla+ é um aplicativo móvel desenvolvido em Flutter que visa conectar colet
 - Flutter
 - Firebase Authentication
 - Cloud Firestore
-- Material Design 3
-- Google Maps Platform
 - Firebase Cloud Messaging
 
 ## ⚙️ Requisitos
