@@ -34,7 +34,11 @@ class RedeemButton extends StatelessWidget {
           ),
           child: const Text(
             'Trocar Pontos',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],

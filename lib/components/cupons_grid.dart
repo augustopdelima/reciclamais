@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:reciclamais/screens/cupon_detail.dart';
 import '../models/cupon.dart';
 import '../services/cupon_service.dart';
 import './cupon_card.dart';
@@ -67,12 +68,23 @@ class _CouponGridState extends State<CouponGrid> {
       itemCount: _coupons.length,
       itemBuilder: (context, index) {
         final coupon = _coupons[index];
-        return CouponCard(
-          percentage: coupon.valorDesconto.toInt(),
-          requiredPoints: 100, // você pode adaptar depois
-          onRedeem: () {
-            // Aqui você chamaria a função para marcar como usado
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CouponDetailScreen(coupon: coupon),
+              ),
+            );
           },
+          child: CouponCard(
+            percentage: coupon.valorDesconto.toInt(),
+            requiredPoints: 100, // você pode adaptar depois
+            onRedeem: () {
+              // Aqui, se quiser, pode chamar diretamente o resgate sem abrir a tela
+            },
+          ),
         );
       },
     );
