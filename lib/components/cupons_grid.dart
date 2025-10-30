@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:reciclamais/components/empty_state.dart';
 import 'package:reciclamais/screens/cupon_detail.dart';
-import '../models/cupon.dart';
-import '../services/cupon_service.dart';
-import './cupon_card.dart';
+import '../viewmodel/cupon.dart';
+import '../viewmodel/user.dart';
+import '../components/cupon_card.dart'; // Certifique-se do caminho correto
 
 class CouponGrid extends StatefulWidget {
   const CouponGrid({super.key});
@@ -13,78 +14,77 @@ class CouponGrid extends StatefulWidget {
 }
 
 class _CouponGridState extends State<CouponGrid> {
-  final _couponService = CouponService();
-  List<Coupon> _coupons = [];
-  bool _isLoading = true;
-
   @override
   void initState() {
     super.initState();
-    _loadCoupons();
-  }
 
-  Future<void> _loadCoupons() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userViewModel = context.read<UserViewModel>();
+      final couponViewModel = context.read<CouponViewModel>();
 
-    try {
-      final coupons = await _couponService.getAvailableCoupons();
-      setState(() {
-        _coupons = coupons;
-      });
-    } catch (e) {
-      debugPrint('Erro ao carregar cupons: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+      final userId = userViewModel.currentUserId;
+
+      if (userId != null) {
+        couponViewModel.loadAvailableCoupons();
+        couponViewModel.loadUserCoupons(userId);
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    return Consumer2<CouponViewModel, UserViewModel>(
+      builder: (context, couponVM, userVM, _) {
+        final availableCoupons = couponVM.availableCoupons;
+        final userId = userVM.currentUserId;
 
-    if (_coupons.isEmpty) {
-      return const Center(child: Text('Nenhum cupom disponível no momento.'));
-    }
+        if (availableCoupons.isEmpty &&
+            userId != null &&
+            !couponVM.hasLoadedInitialCoupons) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    return GridView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        childAspectRatio: 0.9,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-      ),
-      itemCount: _coupons.length,
-      itemBuilder: (context, index) {
-        final coupon = _coupons[index];
+        if (availableCoupons.isEmpty) {
+          // 💡 Novo widget de estado vazio
+          return const EmptyStateWidget(
+            icon: Icons.card_giftcard,
+            message: 'Nenhum cupom disponível no momento. Volte mais tarde!',
+          );
+        }
 
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => CouponDetailScreen(coupon: coupon),
+        return GridView.builder(
+          physics:
+              const NeverScrollableScrollPhysics(), // Mantém a rolagem da SingleChildScrollView da HomeScreen
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.8, // Ajuste para melhor visualização do card
+            mainAxisSpacing: 16, // Mais espaçamento
+            crossAxisSpacing: 16, // Mais espaçamento
+          ),
+          itemCount: availableCoupons.length,
+          itemBuilder: (context, index) {
+            final coupon = availableCoupons[index];
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CouponDetailScreen(coupon: coupon),
+                  ),
+                );
+              },
+              // 💡 CouponCard estilizado com os novos dados
+              child: CouponCard(
+                percentage: coupon.valorDesconto.toInt(),
+                requiredPoints: coupon.costPoints,
+                description: coupon.descricao,
+                // onRedeem agora está na CouponDetailScreen
+                // Adicione a descrição para o card
               ),
             );
           },
-          child: CouponCard(
-            percentage: coupon.valorDesconto.toInt(),
-            requiredPoints: 100, // você pode adaptar depois
-            onRedeem: () {
-              // Aqui, se quiser, pode chamar diretamente o resgate sem abrir a tela
-            },
-          ),
         );
       },
     );

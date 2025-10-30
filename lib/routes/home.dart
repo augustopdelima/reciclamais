@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Adicione o pacote 'provider' ao seu pubspec.yaml
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:reciclamais/components/banner.dart';
 import 'package:reciclamais/components/cupons_grid.dart';
 import 'package:reciclamais/components/greeting_header.dart';
-import '../services/auth_service.dart';
+import '../viewmodel/user.dart'; // Importe seu novo ViewModel
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -13,48 +14,41 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _authService = AuthService();
-  Map<String, dynamic>? _userData;
-
   @override
   void initState() {
     super.initState();
-    _loadUser();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserViewModel>(context, listen: false).startUserListener();
+    });
   }
 
-  Future<void> _loadUser() async {
-    final user = _authService.currentUser;
-    if (user != null) {
-      final data = await _authService.getUserData(user.uid);
-      setState(() {
-        _userData = data;
-      });
-    }
-  }
+  void _logout() async {
+    Provider.of<UserViewModel>(context, listen: false).stopUserListener();
 
-  void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
+
+    if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
   }
 
-  //void _goToUserInfo(BuildContext context) {
-  //  if (user != null) {
-  //Navigator.pushNamed(
-  //  context,
-  // '/userInfo',
-  //   arguments: {'email': user!.email, 'uid': user!.uid},
-  //);
-  //}
-  //}
-
   @override
   Widget build(BuildContext context) {
-    if (_userData == null) {
+    final userViewModel = Provider.of<UserViewModel>(context);
+
+    if (userViewModel.userData == null && userViewModel.currentUserId != null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final name = _userData!['name'] ?? 'Usuário';
-    final points = _userData!['points'] ?? 0;
+    if (userViewModel.currentUserId == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/login');
+      });
+      return const Scaffold(body: Center(child: Text('Redirecionando...')));
+    }
+
+    final name = userViewModel.userName;
+    final points = userViewModel.userPoints;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F5),
@@ -64,10 +58,11 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // GreetingHeader agora usa os dados do ViewModel
               GreetingHeader(
                 name: name,
                 points: points,
-                onLogout: () => _logout(context),
+                onLogout: () => _logout(),
               ),
               const SizedBox(height: 24),
               const FeaturedBanner(
@@ -86,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
+      // ... BottomNavigationBar (mantido como está)
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: const Color(0xFF4CAF50),
         unselectedItemColor: Colors.grey,

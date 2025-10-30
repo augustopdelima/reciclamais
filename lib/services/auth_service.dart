@@ -53,6 +53,15 @@ class AuthService {
     }
   }
 
+  Stream<Map<String, dynamic>?> listenUserData(String uid) {
+    return _firestore.collection('users').doc(uid).snapshots().map((doc) {
+      if (doc.exists) {
+        return doc.data();
+      }
+      return null;
+    });
+  }
+
   // Login with email & password
   Future<User?> login(String email, String password) async {
     try {
