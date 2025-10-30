@@ -32,6 +32,23 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.pushReplacementNamed(context, '/login');
   }
 
+  void _onItemTapped(int index) {
+    switch (index) {
+      case 0:
+        // Tela inicial
+        Navigator.pushNamed(context, '/home');
+        break;
+      case 1:
+        // Tela de cupons
+        Navigator.pushNamed(context, '/coupons');
+        break;
+      case 2:
+        // Perfil do usuário
+        Navigator.pushNamed(context, '/profile');
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userViewModel = Provider.of<UserViewModel>(context);
@@ -84,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // ... BottomNavigationBar (mantido como está)
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: const Color(0xFF4CAF50),
+        onTap: _onItemTapped,
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),

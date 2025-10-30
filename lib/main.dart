@@ -8,6 +8,7 @@ import 'routes/login.dart';
 import 'routes/register.dart';
 import 'routes/home.dart';
 import 'routes/root.dart';
+import 'routes/profile.dart';
 
 import './viewmodel/cupon.dart';
 import './viewmodel/user.dart';
@@ -38,6 +39,7 @@ class MyApp extends StatelessWidget {
           "/login": (context) => LoginScreen(),
           "/register": (context) => RegisterScreen(),
           "/home": (context) => HomeScreen(),
+          "/profile": (context) => UserProfileScreen(),
         },
       ),
     );
