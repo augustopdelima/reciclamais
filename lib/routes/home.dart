@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
         break;
       case 1:
         // Tela de cupons
-        Navigator.pushNamed(context, '/coupons');
+        Navigator.pushNamed(context, '/user-cupons');
         break;
       case 2:
         // Perfil do usuário

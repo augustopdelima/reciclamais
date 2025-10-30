@@ -9,6 +9,7 @@ import 'routes/register.dart';
 import 'routes/home.dart';
 import 'routes/root.dart';
 import 'routes/profile.dart';
+import 'routes/user_cupons.dart';
 
 import './viewmodel/cupon.dart';
 import './viewmodel/user.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
           "/register": (context) => RegisterScreen(),
           "/home": (context) => HomeScreen(),
           "/profile": (context) => UserProfileScreen(),
+          "/user-cupons": (context) => UserPurchasedCouponsPage(),
         },
       ),
     );

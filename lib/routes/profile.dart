@@ -29,7 +29,7 @@ class UserProfileScreen extends StatelessWidget {
 
     return ChangeNotifierProvider(
       create: (_) => UserProfileViewModel(currentUser.uid),
-      child: const _UserProfileBody(),
+      child: _UserProfileBody(),
     );
   }
 }

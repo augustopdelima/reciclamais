@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/cupon.dart';
 
-// ⚠️ NOTA: Este componente agora é usado APENAS para a estrutura de Card,
-// já que as informações detalhadas e o botão foram movidos para a DetailScreen.
-// Ele foi mantido aqui para compatibilidade com o seu código original.
-
 class CouponInfoCard extends StatelessWidget {
   final Coupon coupon;
   final Widget? child; // O child é o RedeemButton
@@ -13,8 +9,6 @@ class CouponInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 Na versão refatorada da DetailScreen, este Card não é mais necessário
-    // como container principal, mas estilizando-o, mantemos a opção de usá-lo.
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       elevation: 6,
@@ -25,7 +19,7 @@ class CouponInfoCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Detalhes da Oferta:',
+              'Detalhes do Cupom:',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 18,

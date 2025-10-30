@@ -45,7 +45,6 @@ class RedeemButton extends StatelessWidget {
             ],
           ),
 
-          // 💡 Botão de Ação
           ElevatedButton(
             // Usa onPressed apenas se estiver ativo, senão passa null
             onPressed: isEnabled ? onPressed : null,

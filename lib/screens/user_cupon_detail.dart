@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../models/cupon.dart';
-import '../viewmodel/cupon.dart';
-import '../viewmodel/user.dart';
 import '../components/cupon_banner.dart';
-import '../components/redeem_button.dart';
 
 class CouponDetailScreen extends StatelessWidget {
   final Coupon coupon;
@@ -14,80 +9,22 @@ class CouponDetailScreen extends StatelessWidget {
   static const Color primaryGreen = Color(0xFF4CAF50);
   static const Color lightBackground = Color(0xFFF4F6F5);
 
-  void _showSnackbar(
-    BuildContext context,
-    String message, {
-    bool success = false,
-  }) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: success ? primaryGreen : Colors.red,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
-  Future<void> _redeemCoupon(
-    BuildContext context,
-    CouponViewModel couponVM,
-    String? userId,
-    int costPoints,
-  ) async {
-    if (userId == null) {
-      _showSnackbar(
-        context,
-        'Você precisa estar logado para resgatar um cupom.',
-      );
-      return;
-    }
-
-    final userVM = context.read<UserViewModel>();
-    if (userVM.userPoints < costPoints) {
-      _showSnackbar(
-        context,
-        '❌ Pontos insuficientes! Você precisa de $costPoints pontos.',
-      );
-      return;
-    }
-
-    final success = await couponVM.redeemCoupon(
-      couponId: coupon.id,
-      userId: userId,
-      cost: costPoints,
-    );
-
-    if (!context.mounted) return;
-
-    if (success) {
-      _showSnackbar(context, '🎉 Cupom resgatado com sucesso!', success: true);
-      Navigator.pop(context);
-    } else {
-      _showSnackbar(context, '❌ Erro ao resgatar o cupom. Tente novamente.');
+  void onNavTap(BuildContext context, int index) {
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/user-cupons');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/profile');
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final userVM = context.watch<UserViewModel>();
-    final couponVM = context.read<CouponViewModel>();
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    final canRedeem = userVM.userPoints >= coupon.costPoints;
-
-    void onNavTap(int index) {
-      switch (index) {
-        case 0:
-          Navigator.pushNamed(context, '/home');
-          break;
-        case 1:
-          Navigator.pushNamed(context, '/user-cupons');
-          break;
-        case 2:
-          Navigator.pushNamed(context, '/profile');
-          break;
-      }
-    }
-
     return Scaffold(
       backgroundColor: lightBackground,
       appBar: AppBar(
@@ -106,7 +43,7 @@ class CouponDetailScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: primaryGreen,
         unselectedItemColor: Colors.grey,
-        onTap: onNavTap,
+        onTap: (index) => onNavTap(context, index),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
           BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: ''),
@@ -122,13 +59,6 @@ class CouponDetailScreen extends StatelessWidget {
             CouponBanner(percentage: coupon.valorDesconto.toInt()),
             const SizedBox(height: 30),
             _DetailCard(coupon: coupon),
-            const SizedBox(height: 30),
-            RedeemButton(
-              pointsRequired: coupon.costPoints,
-              isEnabled: canRedeem && (userId != null),
-              onPressed: () =>
-                  _redeemCoupon(context, couponVM, userId, coupon.costPoints),
-            ),
             const SizedBox(height: 40),
           ],
         ),
@@ -184,6 +114,21 @@ class _DetailCard extends StatelessWidget {
               title: 'Validade da Compra',
               value: 'Até R\$${coupon.maxPurchaseValue.toStringAsFixed(2)}',
               icon: Icons.shopping_bag,
+            ),
+            _InfoRow(
+              title: 'Custo em pontos',
+              value: '${coupon.costPoints} pontos',
+              icon: Icons.star,
+            ),
+            _InfoRow(
+              title: 'Status',
+              value: coupon.redeemed ? 'Resgatado' : 'Disponível',
+              icon: Icons.check_circle,
+            ),
+            _InfoRow(
+              title: 'Id Cupom',
+              value: coupon.id,
+              icon: Icons.card_giftcard,
             ),
           ],
         ),
