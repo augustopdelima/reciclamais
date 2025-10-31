@@ -10,9 +10,11 @@ import 'routes/home.dart';
 import 'routes/root.dart';
 import 'routes/profile.dart';
 import 'routes/user_cupons.dart';
+import 'routes/ponto.dart';
 
 import './viewmodel/cupon.dart';
 import './viewmodel/user.dart';
+import './viewmodel/ponto.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => CouponViewModel()),
+        ChangeNotifierProvider(create: (_) => PontosColetaViewModel()),
       ],
       child: MaterialApp(
         title: "Recicla+",
@@ -42,6 +45,7 @@ class MyApp extends StatelessWidget {
           "/home": (context) => HomeScreen(),
           "/profile": (context) => UserProfileScreen(),
           "/user-cupons": (context) => UserPurchasedCouponsPage(),
+          "/points": (context) => ListaPontosColetaPage(),
         },
       ),
     );

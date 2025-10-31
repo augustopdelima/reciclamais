@@ -23,6 +23,10 @@ class CustomBottomBar extends StatelessWidget {
           // Perfil do usuário
           Navigator.pushNamed(context, '/profile');
           break;
+
+        case 3:
+          Navigator.pushNamed(context, '/points');
+          break;
       }
     }
 
