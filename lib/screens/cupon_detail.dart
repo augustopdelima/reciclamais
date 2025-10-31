@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:reciclamais/components/bottom_nav_bar.dart';
 import '../models/cupon.dart';
 import '../viewmodel/cupon.dart';
 import '../viewmodel/user.dart';
@@ -74,20 +75,6 @@ class CouponDetailScreen extends StatelessWidget {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     final canRedeem = userVM.userPoints >= coupon.costPoints;
 
-    void onNavTap(int index) {
-      switch (index) {
-        case 0:
-          Navigator.pushNamed(context, '/home');
-          break;
-        case 1:
-          Navigator.pushNamed(context, '/user-cupons');
-          break;
-        case 2:
-          Navigator.pushNamed(context, '/profile');
-          break;
-      }
-    }
-
     return Scaffold(
       backgroundColor: lightBackground,
       appBar: AppBar(
@@ -103,16 +90,7 @@ class CouponDetailScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: primaryGreen,
-        unselectedItemColor: Colors.grey,
-        onTap: onNavTap,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomBar(currentIndex: 0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

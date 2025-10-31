@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reciclamais/components/bottom_nav_bar.dart';
 import '../models/cupon.dart';
 import '../components/cupon_banner.dart';
 
@@ -8,20 +9,6 @@ class CouponDetailScreen extends StatelessWidget {
 
   static const Color primaryGreen = Color(0xFF4CAF50);
   static const Color lightBackground = Color(0xFFF4F6F5);
-
-  void onNavTap(BuildContext context, int index) {
-    switch (index) {
-      case 0:
-        Navigator.pushNamed(context, '/home');
-        break;
-      case 1:
-        Navigator.pushNamed(context, '/user-cupons');
-        break;
-      case 2:
-        Navigator.pushNamed(context, '/profile');
-        break;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +27,7 @@ class CouponDetailScreen extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: primaryGreen,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) => onNavTap(context, index),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomBar(currentIndex: 1),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(

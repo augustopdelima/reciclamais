@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Adicione o pacote 'provider' ao seu pubspec.yaml
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:reciclamais/components/banner.dart';
+import 'package:reciclamais/components/bottom_nav_bar.dart';
 import 'package:reciclamais/components/cupons_grid.dart';
 import 'package:reciclamais/components/greeting_header.dart';
 import '../viewmodel/user.dart'; // Importe seu novo ViewModel
@@ -30,23 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
-  }
-
-  void _onItemTapped(int index) {
-    switch (index) {
-      case 0:
-        // Tela inicial
-        Navigator.pushNamed(context, '/home');
-        break;
-      case 1:
-        // Tela de cupons
-        Navigator.pushNamed(context, '/user-cupons');
-        break;
-      case 2:
-        // Perfil do usuário
-        Navigator.pushNamed(context, '/profile');
-        break;
-    }
   }
 
   @override
@@ -99,16 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       // ... BottomNavigationBar (mantido como está)
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: const Color(0xFF4CAF50),
-        onTap: _onItemTapped,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.card_giftcard), label: ''),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
-        ],
-      ),
+      bottomNavigationBar: CustomBottomBar(currentIndex: 0),
     );
   }
 }
