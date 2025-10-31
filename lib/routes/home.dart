@@ -68,7 +68,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 24),
               const FeaturedBanner(
                 imageUrl:
-                    'https://via.placeholder.com/600x300.png?text=Promoção+25%25+Desconto',
+                    'https://img.freepik.com/vetores-gratis/modelo-de-cupom-moderno-com-design-plano_23-2147964693.jpg',
                 onRedeem: null,
               ),
               const SizedBox(height: 24),

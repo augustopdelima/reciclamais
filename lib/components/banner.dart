@@ -44,7 +44,9 @@ class FeaturedBanner extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  onPressed: onRedeem,
+                  onPressed: () {
+                    print("Teste");
+                  },
                   child: const Text(
                     'Resgatar agora',
                     style: TextStyle(
