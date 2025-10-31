@@ -1,25 +1,23 @@
 # Recicla+
 
-## 📱 Sobre
+##  Sobre
 Recicla+ é um aplicativo móvel desenvolvido em Flutter que visa conectar coletores de materiais recicláveis com pessoas que desejam descartar seus resíduos de forma sustentável.
 
-## 🚀 Tecnologias Utilizadas
+##  Tecnologias Utilizadas
 
 - Flutter
 - Firebase Authentication
 - Cloud Firestore
-- Material Design 3
-- Google Maps Platform
 - Firebase Cloud Messaging
 
-## ⚙️ Requisitos
+##  Requisitos
 
 - Flutter SDK (versão mais recente)
 - Android Studio / VS Code
 - Firebase CLI
 - Dispositivo Android / Emulador
 
-## 🔧 Instalação
+##  Instalação
 
 1. **Clone o repositório:**
 ```bash
@@ -50,7 +48,7 @@ flutterfire configure
 flutter run
 ```
 
-## 📱 Funcionalidades
+##  Funcionalidades
 
 - Autenticação de usuários
 - Cadastro de materiais recicláveis
@@ -59,13 +57,13 @@ flutter run
 - Notificações push
 - Mapas interativos
 
-## 👥 Equipe
+##  Equipe
 
 - [Lucas Pacheco](https://github.com/pachedres)
 - [Augusto Pasquali](https://github.com/augustopdelima)
 - [Gabriel Fleck](https://github.com/eberhardtfleck)
 - [Diogo Krupp](https://github.com/DKrupp03)
 
-## 🎓 Instituição
+##  Instituição
 
 Desenvolvido como projeto acadêmico na [FACCAT](https://www.faccat.br/)
