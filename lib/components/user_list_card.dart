@@ -33,7 +33,7 @@ class UserListTile extends StatelessWidget {
                 ),
                 Text(
                   user["email"],
-                  style: TextStyle(color: Colors.black54, fontSize: 14),
+                  style: TextStyle(color: Colors.black54, fontSize: 12),
                 ),
               ],
             ),
@@ -44,7 +44,7 @@ class UserListTile extends StatelessWidget {
               backgroundColor: Colors.green,
               shape: StadiumBorder(),
             ),
-            child: Text("Selecionar"),
+            child: Text("Selecionar", style: TextStyle(color: Colors.white)),
           ),
         ],
       ),

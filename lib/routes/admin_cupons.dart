@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:reciclamais/components/admin_nav_bar.dart';
 import '../viewmodel/admin_cupon.dart';
 import '../models/cupon.dart';
 
@@ -14,6 +15,7 @@ class AdminCouponsPage extends StatelessWidget {
       create: (_) => AdminCouponsViewModel(),
       child: Scaffold(
         appBar: AppBar(title: const Text("Gerenciar Cupons")),
+        bottomNavigationBar: CustomBottomBarAdmin(currentIndex: 1),
         body: Consumer<AdminCouponsViewModel>(
           builder: (context, vm, child) {
             return Column(
@@ -62,8 +64,9 @@ class AdminCouponsPage extends StatelessWidget {
                                 ),
                                 trailing: IconButton(
                                   icon: const Icon(
-                                    Icons.check_circle,
+                                    Icons.info_outline,
                                     color: Colors.green,
+                                    size: 28,
                                   ),
                                   onPressed: () => _showBottomConfirmation(
                                     context,
@@ -91,13 +94,17 @@ class AdminCouponsPage extends StatelessWidget {
   ) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // necessário para DraggableScrollableSheet
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.35,
-        minChildSize: 0.2,
-        maxChildSize: 0.6,
+        initialChildSize: 0.45,
+        minChildSize: 0.25,
+        maxChildSize: 0.7,
         builder: (_, controller) {
+          final user = cupom.assignedTo != null
+              ? vm.getUserForCoupon(cupom.assignedTo!)
+              : null;
+
           return Container(
             padding: const EdgeInsets.all(20),
             decoration: const BoxDecoration(
@@ -118,21 +125,20 @@ class AdminCouponsPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Cabeçalho
                 Column(
                   children: [
                     CircleAvatar(
                       radius: 35,
-                      backgroundColor: Colors.green.shade300,
+                      backgroundColor: Colors.blue.shade400,
                       child: const Icon(
-                        Icons.check_circle,
+                        Icons.info_outline,
                         color: Colors.white,
                         size: 35,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      "Confirmar Cupom",
+                      "Detalhes do Cupom",
                       style: const TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.bold,
@@ -142,9 +148,22 @@ class AdminCouponsPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Text(
-                  "Tem certeza que deseja marcar este cupom como gasto?",
+                  "Descrição: ${cupom.descricao}",
                   style: const TextStyle(fontSize: 16),
                 ),
+                const SizedBox(height: 10),
+                Text("Pontos: ${cupom.costPoints}"),
+                Text("ID do Cupom: ${cupom.id}"),
+                Text("Resgatado: ${cupom.redeemed ? 'Sim' : 'Não'}"),
+                if (user != null)
+                  Text("Comprado por: ${user.name} (${user.email})"),
+                if (cupom.createdAt != null)
+                  Text("Criado em: ${cupom.createdAt}"),
+                if (cupom.spentByAdmin != null)
+                  Text(
+                    "Marcado por admin: ${cupom.spentByAdmin ?? false ? 'Sim' : 'Não'}",
+                  ),
+                if (cupom.spentAt != null) Text("Data gasto: ${cupom.spentAt}"),
                 const SizedBox(height: 25),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -155,12 +174,11 @@ class AdminCouponsPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
-                      child: const Text("Sim, confirmar"),
+                      child: const Text("Marcar como gasto"),
                       onPressed: () async {
                         Navigator.pop(context);
                         final adminId = FirebaseAuth.instance.currentUser!.uid;
                         final success = await vm.markAsSpent(cupom.id, adminId);
-                        print('Resultado marcação cupom: $success');
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
