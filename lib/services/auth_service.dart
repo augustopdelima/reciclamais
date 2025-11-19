@@ -1,9 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   // Get current user
   User? get currentUser => _auth.currentUser;
@@ -96,8 +99,90 @@ class AuthService {
     }
   }
 
+  // Login with Google
+  Future<User?> signInWithGoogle() async {
+    try {
+      // Para web, o GoogleSignIn pode ter limitações
+      // Vamos usar uma abordagem mais direta
+      if (kIsWeb) {
+        // Usar GoogleAuthProvider diretamente para web
+        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        
+        // Configurar para desenvolvimento local
+        googleProvider.setCustomParameters({
+          'prompt': 'select_account',
+          'hosted_domain': 'gmail.com', // Remove para permitir qualquer domínio
+        });
+        
+        // Sign in
+        final UserCredential result = await _auth.signInWithPopup(googleProvider);
+        final User? user = result.user;
+        
+        if (user != null) {
+          // Verificar se é o primeiro login do usuário
+          final userDoc = await _firestore.collection('users').doc(user.uid).get();
+          
+          if (!userDoc.exists) {
+            // Primeiro login com Google - criar documento no Firestore
+            await _firestore.collection('users').doc(user.uid).set({
+              'name': user.displayName ?? 'Usuário Google',
+              'email': user.email ?? '',
+              'points': 0,
+              'role': 'client',
+              'createdAt': FieldValue.serverTimestamp(),
+              'photoURL': user.photoURL,
+              'loginMethod': 'google',
+            });
+          }
+        }
+        
+        return user;
+      } else {
+        // Para mobile, usar GoogleSignIn
+        final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+        
+        if (googleUser == null) {
+          return null;
+        }
+
+        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        UserCredential result = await _auth.signInWithCredential(credential);
+        User? user = result.user;
+
+        if (user != null) {
+          final userDoc = await _firestore.collection('users').doc(user.uid).get();
+          
+          if (!userDoc.exists) {
+            await _firestore.collection('users').doc(user.uid).set({
+              'name': user.displayName ?? 'Usuário Google',
+              'email': user.email ?? '',
+              'points': 0,
+              'role': 'client',
+              'createdAt': FieldValue.serverTimestamp(),
+              'photoURL': user.photoURL,
+              'loginMethod': 'google',
+            });
+          }
+        }
+
+        return user;
+      }
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message);
+    } catch (e) {
+      throw Exception('Erro ao fazer login com Google: $e');
+    }
+  }
+
   // Logout
   Future<void> logout() async {
+    await _googleSignIn.signOut();
     await _auth.signOut();
   }
 }

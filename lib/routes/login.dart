@@ -30,6 +30,22 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _signInWithGoogle() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authService.signInWithGoogle();
+      if (user != null) {
+        Navigator.pushReplacementNamed(context, '/');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFA0E586),
@@ -153,19 +169,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Botão Google
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF388E3C),
+                            backgroundColor: Colors.white,
+                            side: BorderSide(color: Colors.grey.shade300),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
                           ),
-                          onPressed: () {},
-                          child: Text(
-                            'G+',
+                          onPressed: _isLoading ? null : _signInWithGoogle,
+                          icon: Image.asset(
+                            'assets/google_logo.png', // Você pode adicionar um logo do Google
+                            height: 20,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.account_circle,
+                                color: Colors.red,
+                                size: 20,
+                              );
+                            },
+                          ),
+                          label: Text(
+                            'Continuar com Google',
                             style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ),
