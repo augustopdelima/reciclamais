@@ -11,6 +11,8 @@ class CouponViewModel extends ChangeNotifier {
   Stream<List<Coupon>>? _availableStream;
   Stream<List<Coupon>>? _userStream;
 
+  bool isLoading = false;
+
   bool _hasLoadedInitialCoupons = false;
   bool get hasLoadedInitialCoupons => _hasLoadedInitialCoupons;
 
@@ -52,6 +54,24 @@ class CouponViewModel extends ChangeNotifier {
       await loadAvailableCoupons();
       await loadUserCoupons(userId);
     }
+
+    return success;
+  }
+
+  Future<bool> adminMarkCouponAsSpent({
+    required String couponId,
+    required String adminId,
+  }) async {
+    isLoading = true;
+    notifyListeners();
+
+    final success = await _couponService.adminMarkCouponAsSpent(
+      couponId: couponId,
+      adminId: adminId,
+    );
+
+    isLoading = false;
+    notifyListeners();
 
     return success;
   }

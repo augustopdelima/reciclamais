@@ -33,4 +33,26 @@ class UserModel {
       role: data?['role'] ?? 'client',
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'points': points,
+      'role': role,
+      'createdAt': createdAt.toIso8601String(),
+    };
+  }
+
+  factory UserModel.fromJson(Map<String, dynamic> json) {
+    return UserModel(
+      id: json['id'],
+      name: json['name'],
+      email: json['email'],
+      points: json['points'],
+      role: json['role'],
+      createdAt: DateTime.parse(json['createdAt']),
+    );
+  }
 }

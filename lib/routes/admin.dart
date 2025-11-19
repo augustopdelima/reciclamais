@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:reciclamais/components/admin_nav_bar.dart';
 import 'package:reciclamais/viewmodel/user.dart';
 import '../components/admin_credit_points.dart';
 import '../components/user_list_card.dart';
@@ -26,7 +27,6 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   void _logout() async {
     Provider.of<UserViewModel>(context, listen: false).stopUserListener();
-    Provider.of<AdminViewModel>(context, listen: false).dispose();
 
     await FirebaseAuth.instance.signOut();
     Navigator.of(context).pushReplacementNamed('/login'); // volta para login
@@ -50,6 +50,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: const CustomBottomBarAdmin(currentIndex: 0),
       body: Column(
         children: [
           // Campo de pesquisa

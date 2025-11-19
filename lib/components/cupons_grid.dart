@@ -75,7 +75,7 @@ class _CouponGridState extends State<CouponGrid> {
                   ),
                 );
               },
-              // 💡 CouponCard estilizado com os novos dados
+
               child: CouponCard(
                 percentage: coupon.valorDesconto.toInt(),
                 requiredPoints: coupon.costPoints,

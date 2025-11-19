@@ -13,6 +13,7 @@ import 'routes/profile.dart';
 import 'routes/user_cupons.dart';
 import 'routes/ponto.dart';
 import 'routes/admin.dart';
+import 'routes/admin_cupons.dart';
 
 import './viewmodel/cupon.dart';
 import './viewmodel/user.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
           "/user-cupons": (context) => UserPurchasedCouponsPage(),
           "/points": (context) => ListaPontosColetaPage(),
           "/admin": (context) => AdminHomeScreen(),
+          "/admin-cupons": (context) => AdminCouponsPage(),
         },
       ),
     );

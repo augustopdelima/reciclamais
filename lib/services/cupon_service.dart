@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/cupon.dart';
 
 class CouponService {
@@ -33,6 +34,7 @@ class CouponService {
     final query = await _db
         .collection('cupons')
         .where('assignedTo', isEqualTo: userId)
+        .where('spentByAdmin', isEqualTo: false)
         .get();
 
     return query.docs
@@ -116,6 +118,62 @@ class CouponService {
     }
   }
 
+  Stream<List<Map<String, dynamic>>> streamAllRedeemedCoupons() {
+    return _db
+        .collection('cupons')
+        .where('assignedTo', isNotEqualTo: null)
+        .snapshots()
+        .map(
+          (snap) => snap.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return data;
+          }).toList(),
+        );
+  }
+
+  Stream<List<Map<String, dynamic>>> streamUserRedeemedCoupons(String userId) {
+    return _db
+        .collection('cupons')
+        .where('assignedTo', isEqualTo: userId)
+        .snapshots()
+        .map(
+          (snap) => snap.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return data;
+          }).toList(),
+        );
+  }
+
+  Future<List<Map<String, dynamic>>> searchRedeemedCoupons(String text) async {
+    final query = await _db.collection('cupons').get();
+
+    final lower = text.toLowerCase();
+
+    final redeemed = query.docs.where((doc) {
+      final data = doc.data();
+      return data['assignedTo'] != null;
+    });
+
+    return redeemed
+        .map((doc) {
+          final data = doc.data();
+          data['id'] = doc.id;
+          return data;
+        })
+        .where((data) {
+          final title = (data['descricao'] ?? "").toLowerCase();
+          final desc = (data['valorDesconto']?.toString() ?? "").toLowerCase();
+          final user = (data['assignedTo'] ?? "").toLowerCase();
+
+          return title.contains(lower) ||
+              desc.contains(lower) ||
+              user.contains(lower);
+        })
+        .toList();
+  }
+
   Future<void> redeemCoupon(String couponDocId, String userId) async {
     await _db.collection('cupons').doc(couponDocId).update({
       'assignedTo': userId,
@@ -152,5 +210,62 @@ class CouponService {
 
     await redeemCoupon(couponDocId, userId);
     return true;
+  }
+
+  Future<bool> adminMarkCouponAsSpent({
+    required String couponId,
+    required String adminId,
+  }) async {
+    final couponRef = _db.collection('cupons').doc(couponId);
+
+    final user = FirebaseAuth.instance.currentUser!;
+    final idTokenResult = await user.getIdTokenResult(
+      true,
+    ); // força atualização
+    print("Claims do usuário: ${idTokenResult.claims}");
+
+    try {
+      await _db.runTransaction((tx) async {
+        final snapshot = await tx.get(couponRef);
+        if (!snapshot.exists) throw Exception('Cupom não encontrado');
+
+        final data = snapshot.data()!;
+
+        // Verifica se já foi marcado como spent pelo admin
+        final alreadySpent = data['redeemedByAdmin'] != null;
+        if (alreadySpent) {
+          throw Exception('Cupom já foi marcado como gasto pelo admin');
+        }
+
+        final assignedTo = data['assignedTo'];
+        final description = data['descricao'] ?? '';
+        final discountValue = data['valorDesconto'] ?? 0;
+        final costPoints = data['costPoints'] ?? 0;
+
+        // → Marca como spent pelo admin (não mexe em redeemed)
+        tx.update(couponRef, {
+          'redeemedByAdmin': adminId,
+          'spentAt': FieldValue.serverTimestamp(),
+        });
+
+        // → Cria histórico compatível com seu model RedeemHistoryItem
+        tx.set(_db.collection('redeem_history').doc(), {
+          'couponId': couponId,
+          'userId': assignedTo,
+          'description': description,
+          'discountValue': discountValue,
+          'costPoints': costPoints,
+          'couponDocRef': couponRef,
+          'redeemedAt': FieldValue.serverTimestamp(),
+          'adminId': adminId,
+          'action': 'admin_mark_spent',
+        });
+      });
+
+      return true;
+    } catch (e) {
+      print('Erro em adminMarkCouponAsSpent: $e');
+      return false;
+    }
   }
 }
