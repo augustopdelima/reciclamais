@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = true);
       try {
         await _authService.login(emailController.text, passwordController.text);
-        Navigator.pushReplacementNamed(context, '/home');
+        Navigator.pushReplacementNamed(context, '/');
       } catch (e) {
         ScaffoldMessenger.of(
           context,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:reciclamais/viewmodel/admin_user.dart';
 import 'firebase_options.dart';
 
 // Importe suas rotas
@@ -11,6 +12,7 @@ import 'routes/root.dart';
 import 'routes/profile.dart';
 import 'routes/user_cupons.dart';
 import 'routes/ponto.dart';
+import 'routes/admin.dart';
 
 import './viewmodel/cupon.dart';
 import './viewmodel/user.dart';
@@ -27,12 +29,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 💡 Usa o MultiProvider para fornecer múltiplos ViewModels
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => CouponViewModel()),
         ChangeNotifierProvider(create: (_) => PontosColetaViewModel()),
+        ChangeNotifierProvider(create: (_) => UserViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminViewModel()),
       ],
       child: MaterialApp(
         title: "Recicla+",
@@ -46,6 +49,7 @@ class MyApp extends StatelessWidget {
           "/profile": (context) => UserProfileScreen(),
           "/user-cupons": (context) => UserPurchasedCouponsPage(),
           "/points": (context) => ListaPontosColetaPage(),
+          "/admin": (context) => AdminHomeScreen(),
         },
       ),
     );

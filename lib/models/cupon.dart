@@ -6,11 +6,9 @@ class Coupon {
   final double valorDesconto;
   final String tipoDesconto; // ex: 'percentual' ou 'fixo'
 
-  // 💡 NOVOS CAMPOS
   final int costPoints; // Custo em pontos para resgatar
   final double
   maxPurchaseValue; // Valor máximo da compra para validade do cupom
-  // --------------------
 
   final String adminId;
   final String? assignedTo; // UID do usuário ou null
@@ -68,7 +66,7 @@ class Coupon {
       valorDesconto: parsedValor,
       tipoDesconto: data['tipoDesconto'] ?? 'percentual',
 
-      // 💡 Atribuição dos NOVOS CAMPOS
+      //  Atribuição dos NOVOS CAMPOS
       costPoints: parsedCost,
       maxPurchaseValue: parsedMaxValue,
 

@@ -7,24 +7,29 @@ class UserViewModel extends ChangeNotifier {
   Map<String, dynamic>? _userData;
   StreamSubscription<Map<String, dynamic>?>? _userSubscription;
 
-  // Estado exposto para a UI
   Map<String, dynamic>? get userData => _userData;
   String get userName => _userData?['name'] ?? 'Usuário';
   int get userPoints => _userData?['points'] ?? 0;
+  String get userRole => _userData?['role'];
+
   String? get currentUserId => _authService.currentUser?.uid;
 
   void startUserListener() {
-    final userId = currentUserId;
-    if (userId == null) {
-      _userData = null;
-      notifyListeners();
+    final user = _authService.currentUser;
+
+    if (user == null) {
+      stopUserListener();
+      return;
+    }
+
+    if (_userSubscription != null) {
       return;
     }
 
     _userSubscription?.cancel();
 
     _userSubscription = _authService
-        .listenUserData(userId)
+        .listenUserData(user.uid)
         .listen(
           (data) {
             _userData = data;
@@ -38,7 +43,6 @@ class UserViewModel extends ChangeNotifier {
         );
   }
 
-  ///  Para a escuta do usuário (chamar ao deslogar ou descartar o widget)
   void stopUserListener() {
     _userSubscription?.cancel();
     _userSubscription = null;
