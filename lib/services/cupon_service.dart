@@ -246,6 +246,7 @@ class CouponService {
         tx.update(couponRef, {
           'redeemedByAdmin': adminId,
           'spentAt': FieldValue.serverTimestamp(),
+          'spentByAdmin': true,
         });
 
         // → Cria histórico compatível com seu model RedeemHistoryItem

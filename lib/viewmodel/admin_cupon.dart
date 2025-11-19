@@ -109,10 +109,22 @@ class AdminCouponsViewModel extends ChangeNotifier {
   }
 
   Future<bool> markAsSpent(String couponId, String adminId) async {
-    return await _couponService.adminMarkCouponAsSpent(
+    final success = await _couponService.adminMarkCouponAsSpent(
       couponId: couponId,
       adminId: adminId,
     );
+
+    if (success) {
+      // Recarrega usando o último texto buscado
+      if (searchText.isNotEmpty) {
+        await searchCoupons(searchText);
+      } else {
+        // Caso não tenha busca ativa, você pode recarregar tudo
+        await searchCoupons('');
+      }
+    }
+
+    return success;
   }
 
   UserModel? getUserForCoupon(String assignedTo) {
