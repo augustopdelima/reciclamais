@@ -43,6 +43,11 @@ class UserViewModel extends ChangeNotifier {
         );
   }
 
+  Future<void> logout() async {
+    await _authService.logout();
+    stopUserListener();
+  }
+
   void stopUserListener() {
     _userSubscription?.cancel();
     _userSubscription = null;

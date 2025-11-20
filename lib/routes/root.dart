@@ -27,7 +27,9 @@ class RootScreen extends StatelessWidget {
 
         final firebaseUser = snapshot.data;
         if (firebaseUser == null) {
-          userViewModel.stopUserListener();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            userViewModel.stopUserListener();
+          });
           return LoginScreen();
         }
 

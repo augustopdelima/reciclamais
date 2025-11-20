@@ -25,9 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _logout() async {
-    Provider.of<UserViewModel>(context, listen: false).stopUserListener();
+    final uservm = Provider.of<UserViewModel>(context, listen: false);
 
-    await FirebaseAuth.instance.signOut();
+    await uservm.logout();
 
     if (!mounted) return;
     Navigator.pushReplacementNamed(context, '/login');
