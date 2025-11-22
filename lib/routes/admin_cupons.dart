@@ -7,21 +7,26 @@ import '../viewmodel/admin_cupon.dart';
 import '../models/cupon.dart';
 
 class AdminCouponsPage extends StatelessWidget {
-  AdminCouponsPage({super.key});
+  const AdminCouponsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => AdminCouponsViewModel(),
       child: Scaffold(
-        appBar: AppBar(title: const Text("Gerenciar Cupons")),
+        backgroundColor: const Color(0xFFF5F6FA),
+        appBar: AppBar(
+          title: const Text("Gerenciar Cupons"),
+          elevation: 0,
+          backgroundColor: Colors.green.shade600,
+        ),
         bottomNavigationBar: CustomBottomBarAdmin(currentIndex: 1),
         body: Consumer<AdminCouponsViewModel>(
           builder: (context, vm, child) {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
                   child: _SearchBar(vm: vm),
                 ),
                 Expanded(
@@ -31,6 +36,7 @@ class AdminCouponsPage extends StatelessWidget {
                       ? const Center(
                           child: Text(
                             "Nenhum cupom encontrado para sua pesquisa",
+                            style: TextStyle(fontSize: 16),
                           ),
                         )
                       : ListView.builder(
@@ -41,37 +47,84 @@ class AdminCouponsPage extends StatelessWidget {
                                 ? vm.getUserForCoupon(cupom.assignedTo!)
                                 : null;
 
-                            return Card(
+                            return Container(
                               margin: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
+                                horizontal: 14,
+                                vertical: 7,
                               ),
-                              child: ListTile(
-                                title: Text(cupom.descricao),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text("Pontos: ${cupom.costPoints}"),
-                                    Text("ID do Cupom: ${cupom.id}"),
-                                    Text(
-                                      "Resgatado em: ${cupom.redeemed ? 'Sim' : 'Não'}",
-                                    ),
-                                    if (user != null)
-                                      Text(
-                                        "Comprado por: ${user.name} (${user.email})",
-                                      ),
-                                  ],
+                              child: Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
                                 ),
-                                trailing: IconButton(
-                                  icon: const Icon(
-                                    Icons.info_outline,
-                                    color: Colors.green,
-                                    size: 28,
-                                  ),
-                                  onPressed: () => _showBottomConfirmation(
-                                    context,
-                                    cupom,
-                                    vm,
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: Colors.green.shade50,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.local_offer_rounded,
+                                          size: 32,
+                                          color: Colors.green,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              cupom.descricao,
+                                              style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text("Pontos: ${cupom.costPoints}"),
+                                            Text("ID: ${cupom.id}"),
+                                            Text(
+                                              "Resgatado: ${cupom.redeemed ? 'Sim' : 'Não'}",
+                                              style: TextStyle(
+                                                color: cupom.redeemed
+                                                    ? Colors.red
+                                                    : Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            if (user != null)
+                                              Text(
+                                                "Comprado por: ${user.name} (${user.email})",
+                                                style: const TextStyle(
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(
+                                          Icons.info_outline_rounded,
+                                          color: Colors.green,
+                                          size: 28,
+                                        ),
+                                        onPressed: () =>
+                                            _showBottomConfirmation(
+                                              context,
+                                              cupom,
+                                              vm,
+                                            ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
@@ -95,21 +148,21 @@ class AdminCouponsPage extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.black.withAlpha(51),
       builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.45,
-        minChildSize: 0.25,
-        maxChildSize: 0.7,
+        initialChildSize: 0.55,
+        minChildSize: 0.35,
+        maxChildSize: 0.85,
         builder: (_, controller) {
           final user = cupom.assignedTo != null
               ? vm.getUserForCoupon(cupom.assignedTo!)
               : null;
 
           return Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: const BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
             child: ListView(
               controller: controller,
@@ -127,44 +180,51 @@ class AdminCouponsPage extends StatelessWidget {
                 ),
                 Column(
                   children: [
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundColor: Colors.blue.shade400,
+                    Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        shape: BoxShape.circle,
+                      ),
                       child: const Icon(
-                        Icons.info_outline,
-                        color: Colors.white,
-                        size: 35,
+                        Icons.local_offer_rounded,
+                        color: Colors.green,
+                        size: 40,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 12),
+                    const Text(
                       "Detalhes do Cupom",
-                      style: const TextStyle(
-                        fontSize: 19,
+                      style: TextStyle(
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 25),
-                Text(
-                  "Descrição: ${cupom.descricao}",
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                Text("Pontos: ${cupom.costPoints}"),
-                Text("ID do Cupom: ${cupom.id}"),
-                Text("Resgatado: ${cupom.redeemed ? 'Sim' : 'Não'}"),
+
+                _infoText("Descrição", cupom.descricao),
+                _infoText("Pontos", "${cupom.costPoints}"),
+                _infoText("ID do Cupom", cupom.id),
+                _infoText("Resgatado", cupom.redeemed ? "Sim" : "Não"),
+
                 if (user != null)
-                  Text("Comprado por: ${user.name} (${user.email})"),
-                if (cupom.createdAt != null)
-                  Text("Criado em: ${cupom.createdAt}"),
+                  _infoText("Comprado por", "${user.name} (${user.email})"),
+
+                _infoText("Criado em", cupom.createdAt.toString()),
+
                 if (cupom.spentByAdmin != null)
-                  Text(
-                    "Marcado por admin: ${cupom.spentByAdmin ?? false ? 'Sim' : 'Não'}",
+                  _infoText(
+                    "Marcado por admin",
+                    cupom.spentByAdmin! ? "Sim" : "Não",
                   ),
-                if (cupom.spentAt != null) Text("Data gasto: ${cupom.spentAt}"),
-                const SizedBox(height: 25),
+
+                if (cupom.spentAt != null)
+                  _infoText("Data gasto", cupom.spentAt.toString()),
+
+                const SizedBox(height: 30),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -174,17 +234,58 @@ class AdminCouponsPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 10),
                     ElevatedButton(
-                      child: const Text("Marcar como gasto"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green.shade600,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                      child: const Text(
+                        "Marcar como gasto",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: () async {
                         Navigator.pop(context);
                         final adminId = FirebaseAuth.instance.currentUser!.uid;
                         final success = await vm.markAsSpent(cupom.id, adminId);
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text(
-                              success
-                                  ? "Cupom marcado como gasto"
-                                  : "Erro ao marcar cupom",
+                            behavior: SnackBarBehavior.floating,
+                            margin: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            backgroundColor: success
+                                ? Colors.green.shade700
+                                : Colors.red.shade700,
+                            duration: const Duration(seconds: 3),
+                            content: Row(
+                              children: [
+                                Icon(
+                                  success
+                                      ? Icons.check_circle_outline
+                                      : Icons.error_outline,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    success
+                                        ? "Cupom marcado como gasto com sucesso!"
+                                        : "Não foi possível marcar o cupom. Tente novamente.",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         );
@@ -199,9 +300,25 @@ class AdminCouponsPage extends StatelessWidget {
       ),
     );
   }
+
+  Widget _infoText(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 3),
+          Text(value, style: const TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
 }
 
-/// Componente do SearchBar com debounce
 class _SearchBar extends StatefulWidget {
   final AdminCouponsViewModel vm;
 
@@ -234,10 +351,16 @@ class _SearchBarState extends State<_SearchBar> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
-      decoration: const InputDecoration(
-        hintText: "Buscar cupons por descrição, usuário, email ou ID",
-        prefixIcon: Icon(Icons.search),
-        border: OutlineInputBorder(),
+      decoration: InputDecoration(
+        hintText: "Buscar cupons...",
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
+        ),
       ),
       onChanged: _onSearchChanged,
     );

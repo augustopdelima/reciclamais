@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // Adicione o pacote 'provider' ao seu pubspec.yaml
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:reciclamais/components/banner.dart';
 import 'package:reciclamais/components/bottom_nav_bar.dart';
 import 'package:reciclamais/components/cupons_grid.dart';
